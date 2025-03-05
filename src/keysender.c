@@ -22,11 +22,28 @@ uint32_t SendCtrlKey(const char *key)
   }
 
   // before sending input, wait for existing key presses to be released
-  for (int i = 0; i < 100; i++) {
-    if (GetAsyncKeyState(i) & 0x8000) {
-      Sleep(10);
-      break;
+  const int MAX_ATTEMPTS = 50; // 50 * 10ms = 500ms timeout
+  BOOL keysPressed = TRUE;
+  int attempts = 0;
+  
+  while (keysPressed && attempts < MAX_ATTEMPTS) {
+    keysPressed = FALSE;
+    for (int i = 0; i < 256; i++) {
+      if (GetAsyncKeyState(i) & 0x8000) {
+        keysPressed = TRUE;
+        break;
+      }
     }
+    
+    if (keysPressed) {
+      Sleep(10);
+      attempts++;
+    }
+  }
+  
+  if (keysPressed) {
+    printf("Failed: keys still pressed after timeout\n");
+    return 0;  // Keys still pressed after timeout
   }
 
   printf("Sending key: %s\n", key);
