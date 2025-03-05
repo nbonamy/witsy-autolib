@@ -13,7 +13,6 @@
   "devDependencies": {
     "mocha": "^11.1.0",
     "node-gyp": "^11.1.0",
-    "node-gyp-build": "^4.8.4",
     "prebuildify": "^6.0.1"
   },
   "keywords": [
@@ -27,5 +26,8 @@
     "name": "Nicolas Bonamy",
     "email": "nicolas@bonamy.fr"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "dependencies": {
+    "node-gyp-build": "^4.8.4"
+  }
 }
