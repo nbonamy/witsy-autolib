@@ -1,5 +1,6 @@
 #include "keysender.h"
 #include <string.h>
+#include <stdio.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -27,6 +28,8 @@ uint32_t SendCtrlKey(const char *key)
       break;
     }
   }
+
+  printf("Sending key: %s\n", key);
 
   // make sure window is active
   HWND hwnd = GetForegroundWindow();
@@ -72,6 +75,7 @@ uint32_t SendCtrlKey(const char *key)
   inputs[3].ki.dwExtraInfo = 0;
 
   UINT numSent = SendInput(4, inputs, sizeof(INPUT));
+  printf("Sent keys: %d\n", numSent);
   return numSent == 4 ? 1 : 0;
 
 #elif defined(__APPLE__)
