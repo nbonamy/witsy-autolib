@@ -18,6 +18,7 @@ uint32_t SendCtrlKey(const char *key)
   } else if (strcmp(key, "V") == 0) {
     keyCode = 0x56; // VK_V
   } else {
+    printf("Unrecognized key: %s\n", key);
     return 0; // Error: Unsupported key
   }
 
@@ -99,16 +100,12 @@ uint32_t SendCtrlKey(const char *key)
   CGKeyCode keyCode;
 
   // Define key codes for C and V on macOS
-  if (strcmp(key, "C") == 0)
-  {
+  if (strcmp(key, "C") == 0) {
     keyCode = 8; // C key on macOS
-  }
-  else if (strcmp(key, "V") == 0)
-  {
+  } else if (strcmp(key, "V") == 0) {
     keyCode = 9; // V key on macOS
-  }
-  else
-  {
+  } else {
+    printf("Unrecognized key: %s\n", key);
     return 0; // Error: Unsupported key
   }
 
