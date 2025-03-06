@@ -1,6 +1,8 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#ifdef WIN32
+
 #include <stdint.h>
 #include <windows.h>
 
@@ -16,7 +18,6 @@ typedef struct {
   int height;      // Icon height
 } IconData;
 
-
 // Get product name from executable resources
 BOOL GetProductNameFromExe(const char* exePath, char* productName, DWORD bufferSize);
 
@@ -29,6 +30,8 @@ void FreeIconData(IconData* iconData);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif // PROCESS_H

@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef WIN32
+
 #define ICON_BUFFER_SIZE 65536
 
 // Get product name from executable file
@@ -285,3 +287,5 @@ void FreeIconData(IconData* iconData) {
   if (iconData->data) free(iconData->data);
   free(iconData);
 }
+
+#endif

@@ -1,5 +1,8 @@
 #include "window.h"
 #include "process.h"
+
+#ifdef WIN32
+
 #include <windows.h>
 #include <psapi.h>
 #include <stdio.h>
@@ -101,3 +104,5 @@ void FreeWindowInfo(ForemostWindowInfo* info) {
   
   free(info);
 }
+
+#endif

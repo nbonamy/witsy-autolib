@@ -41,6 +41,13 @@ static napi_value SendCtrlKeyWrapper(napi_env env, napi_callback_info info)
 
 static napi_value GetForemostWindowWrapper(napi_env env, napi_callback_info info)
 {
+#ifndef WIN32
+
+  napi_throw_error(env, NULL, "This function is only available on Windows");
+  return NULL;
+
+#else
+
   napi_status status;
   
   // Get the foremost window information
@@ -85,11 +92,20 @@ static napi_value GetForemostWindowWrapper(napi_env env, napi_callback_info info
   FreeWindowInfo(windowInfo);
   
   return result;
+
+#endif
 }
 
 // Add this function after your other wrapper functions
 static napi_value GetProductNameWrapper(napi_env env, napi_callback_info info)
 {
+#ifndef WIN32
+
+  napi_throw_error(env, NULL, "This function is only available on Windows");
+  return NULL;
+
+#else
+
   napi_status status;
   size_t argc = 1;
   napi_value args[1];
@@ -127,10 +143,20 @@ static napi_value GetProductNameWrapper(napi_env env, napi_callback_info info)
     status = napi_get_null(env, &null_value);
     return null_value;
   }
+
+#endif
+
 }
 
 static napi_value GetApplicationIconWrapper(napi_env env, napi_callback_info info)
 {
+#ifndef WIN32
+
+  napi_throw_error(env, NULL, "This function is only available on Windows");
+  return NULL;
+
+#else
+
   napi_status status;
   size_t argc = 1;
   napi_value args[1];
@@ -188,6 +214,8 @@ static napi_value GetApplicationIconWrapper(napi_env env, napi_callback_info inf
   }
   
   return result;
+
+#endif
 }
 
 static napi_value Init(napi_env env, napi_value exports)
