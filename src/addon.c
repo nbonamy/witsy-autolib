@@ -229,6 +229,48 @@ static napi_value GetApplicationIconWrapper(napi_env env, napi_callback_info inf
 #endif
 }
 
+// Add this function to addon.c
+static napi_value SetForegroundWindowWrapper(napi_env env, napi_callback_info info)
+{
+#ifndef WIN32
+
+  napi_throw_error(env, NULL, "This function is only available on Windows");
+  return NULL;
+
+#else
+
+  napi_status status;
+  size_t argc = 1;
+  napi_value args[1];
+  
+  // Get the arguments (window handle as number)
+  status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
+  if (status != napi_ok || argc < 1) {
+    napi_throw_error(env, NULL, "Expected a number argument (window handle)");
+    return NULL;
+  }
+  
+  // Get the window handle as int64
+  int64_t hwndValue;
+  status = napi_get_value_int64(env, args[0], &hwndValue);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Expected a number argument for window handle");
+    return NULL;
+  }
+  
+  // Cast to HWND and call SetForegroundWindow
+  HWND hwnd = (HWND)(uintptr_t)hwndValue;
+  BOOL result = SetForegroundWindow(hwnd);
+  
+  // Return success/failure
+  napi_value return_val;
+  status = napi_create_int32(env, result ? 1 : 0, &return_val);
+  
+  return return_val;
+
+#endif
+}
+
 static napi_value Init(napi_env env, napi_value exports)
 {
   napi_value result;
@@ -253,6 +295,11 @@ static napi_value Init(napi_env env, napi_value exports)
   napi_value get_application_icon_fn;
   napi_create_function(env, NULL, 0, GetApplicationIconWrapper, NULL, &get_application_icon_fn);
   napi_set_named_property(env, result, "getApplicationIcon", get_application_icon_fn);
+  
+  // Export setForegroundWindow
+  napi_value set_foreground_window_fn;
+  napi_create_function(env, NULL, 0, SetForegroundWindowWrapper, NULL, &set_foreground_window_fn);
+  napi_set_named_property(env, result, "setForegroundWindow", set_foreground_window_fn);
 
   return result;
 }
