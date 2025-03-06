@@ -27,7 +27,7 @@ uint32_t SendKey(const char *key, bool useModifier)
     keyCode = VK_DOWN; // VK_DOWN
   } else {
     printf("Unrecognized key: %s\n", key);
-    return 0; // Error: Unsupported key
+    return 1; // Error: Unsupported key
   }
 
   // before sending input, wait for existing key presses to be released
@@ -52,7 +52,7 @@ uint32_t SendKey(const char *key, bool useModifier)
   
   if (keysPressed) {
     printf("Failed: keys still pressed after timeout\n");
-    return 0;  // Keys still pressed after timeout
+    return 2;  // Keys still pressed after timeout
   }
 
   printf("Sending key: %s%s\n", useModifier ? "Ctrl+" : "", key);
@@ -66,7 +66,7 @@ uint32_t SendKey(const char *key, bool useModifier)
   INPUT* inputs = (INPUT*)malloc(numInputs * sizeof(INPUT));
   if (inputs == NULL) {
     printf("Failed to allocate memory for inputs\n");
-    return 0;
+    return 9;
   }
   memset(inputs, 0, numInputs * sizeof(INPUT));
 
@@ -119,7 +119,7 @@ uint32_t SendKey(const char *key, bool useModifier)
   printf("Sent keys: %d\n", numSent);
   
   free(inputs);
-  return numSent == numInputs ? 1 : 0;
+  return numSent == numInputs ? 0 : 3;
 
 #elif defined(__APPLE__)
   CGKeyCode keyCode;
@@ -139,7 +139,7 @@ uint32_t SendKey(const char *key, bool useModifier)
     keyCode = 125; // Down arrow key on macOS
   } else {
     printf("Unrecognized key: %s\n", key);
-    return 0; // Error: Unsupported key
+    return 1; // Error: Unsupported key
   }
   
   // Get the current event source
@@ -165,7 +165,7 @@ uint32_t SendKey(const char *key, bool useModifier)
   CFRelease(keyUp);
   CFRelease(sourceRef);
 
-  return 1; // Success
+  return 0; // Success
 
 #else
   // For other platforms, just return success without doing anything
