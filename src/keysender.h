@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-uint32_t SendCtrlKey(const char* key);
+uint32_t SendCtrlKey();
 
 #ifdef __cplusplus
 }

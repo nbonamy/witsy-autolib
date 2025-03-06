@@ -8,19 +8,19 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-uint32_t SendCtrlKey(const char *key)
+uint32_t SendCtrlKey()
 {
 #ifdef _WIN32
   
-  BYTE keyCode = 0;
-  if (strcmp(key, "C") == 0) {
-    keyCode = 0x43; // VK_C
-  } else if (strcmp(key, "V") == 0) {
-    keyCode = 0x56; // VK_V
-  } else {
-    printf("Unrecognized key: %s\n", key);
-    return 0; // Error: Unsupported key
-  }
+  BYTE keyCode = 0x43;
+  // if (strcmp(key, "C") == 0) {
+  //   keyCode = 0x43; // VK_C
+  // } else if (strcmp(key, "V") == 0) {
+  //   keyCode = 0x56; // VK_V
+  // } else {
+  //   printf("Unrecognized key: %s\n", key);
+  //   return 0; // Error: Unsupported key
+  // }
 
   // before sending input, wait for existing key presses to be released
   const int MAX_ATTEMPTS = 50; // 50 * 10ms = 500ms timeout
@@ -47,7 +47,7 @@ uint32_t SendCtrlKey(const char *key)
     return 0;  // Keys still pressed after timeout
   }
 
-  printf("Sending key: %s\n", key);
+  // printf("Sending key: %s\n", key);
 
   // make sure window is active
   HWND hwnd = GetForegroundWindow();
