@@ -8,19 +8,19 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-uint32_t SendCtrlKey()
+uint32_t SendCtrlKey(const char *key)
 {
 #ifdef _WIN32
   
-  BYTE keyCode = 0x43;
-  // if (strcmp(key, "C") == 0) {
-  //   keyCode = 0x43; // VK_C
-  // } else if (strcmp(key, "V") == 0) {
-  //   keyCode = 0x56; // VK_V
-  // } else {
-  //   printf("Unrecognized key: %s\n", key);
-  //   return 0; // Error: Unsupported key
-  // }
+  BYTE keyCode = 0;
+  if (strcmp(key, "C") == 0) {
+    keyCode = 0x43; // VK_C
+  } else if (strcmp(key, "V") == 0) {
+    keyCode = 0x56; // VK_V
+  } else {
+    printf("Unrecognized key: %s\n", key);
+    return 0; // Error: Unsupported key
+  }
 
   // before sending input, wait for existing key presses to be released
   const int MAX_ATTEMPTS = 50; // 50 * 10ms = 500ms timeout
@@ -47,7 +47,7 @@ uint32_t SendCtrlKey()
     return 0;  // Keys still pressed after timeout
   }
 
-  // printf("Sending key: %s\n", key);
+  printf("Sending key: %s\n", key);
 
   // make sure window is active
   HWND hwnd = GetForegroundWindow();
@@ -97,17 +97,17 @@ uint32_t SendCtrlKey()
   return numSent == 4 ? 1 : 0;
 
 #elif defined(__APPLE__)
-  CGKeyCode keyCode = 8;
+  CGKeyCode keyCode;
 
-  // // Define key codes for C and V on macOS
-  // if (strcmp(key, "C") == 0) {
-  //   keyCode = 8; // C key on macOS
-  // } else if (strcmp(key, "V") == 0) {
-  //   keyCode = 9; // V key on macOS
-  // } else {
-  //   printf("Unrecognized key: %s\n", key);
-  //   return 0; // Error: Unsupported key
-  // }
+  // Define key codes for C and V on macOS
+  if (strcmp(key, "C") == 0) {
+    keyCode = 8; // C key on macOS
+  } else if (strcmp(key, "V") == 0) {
+    keyCode = 9; // V key on macOS
+  } else {
+    printf("Unrecognized key: %s\n", key);
+    return 0; // Error: Unsupported key
+  }
 
   // Get the current event source
   CGEventSourceRef sourceRef = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);

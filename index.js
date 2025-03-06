@@ -8,8 +8,16 @@ try {
   console.error('autolib failed to load native module:', err)
   module.exports = {
     sendCtrlKey: function() {
-      console.warn('autolib: SendCtrlKey mock')
-      return 0
+      throw new Error('autolib native module not loaded')
+    },
+    getForemostWindow: function() {
+      throw new Error('autolib native module not loaded')
+    },
+    getProductName: function() {
+      throw new Error('autolib native module not loaded')
+    },
+    getApplicationIcon: function() {
+      throw new Error('autolib native module not loaded')
     }
   }
 }
