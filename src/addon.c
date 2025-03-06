@@ -7,13 +7,14 @@
 
 #define MAX_PATH_LENGTH 260
 
-static napi_value SendCtrlKeyWrapper(napi_env env, napi_callback_info info)
+static napi_value SendKeyWrapper(napi_env env, napi_callback_info info)
 {
   napi_status status;
-  size_t argc = 1;
-  napi_value args[1];
+  size_t argc = 2;
+  napi_value args[2];
   char buffer[32]; // Sufficient for key characters
   size_t buffer_size = sizeof(buffer);
+  bool useModifier = false;
 
   // Get the arguments
   status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
@@ -31,8 +32,18 @@ static napi_value SendCtrlKeyWrapper(napi_env env, napi_callback_info info)
     return NULL;
   }
 
+  // Get the optional boolean argument
+  if (argc >= 2) {
+    status = napi_get_value_bool(env, args[1], &useModifier);
+    if (status != napi_ok)
+    {
+      napi_throw_error(env, NULL, "Second argument must be a boolean");
+      return NULL;
+    }
+  }
+
   // Call the function and create return value
-  uint32_t result = SendCtrlKey(buffer);
+  uint32_t result = SendKey(buffer, useModifier);
   napi_value return_val;
   napi_create_uint32(env, result, &return_val);
 
@@ -223,10 +234,10 @@ static napi_value Init(napi_env env, napi_value exports)
   napi_value result;
   napi_create_object(env, &result);
   
-  // Export sendCtrlKey
-  napi_value send_ctrl_key_fn;
-  napi_create_function(env, NULL, 0, SendCtrlKeyWrapper, NULL, &send_ctrl_key_fn);
-  napi_set_named_property(env, result, "sendCtrlKey", send_ctrl_key_fn);
+  // Export sendKey
+  napi_value send_key_fn;
+  napi_create_function(env, NULL, 0, SendKeyWrapper, NULL, &send_key_fn);
+  napi_set_named_property(env, result, "sendKey", send_key_fn);
   
   // Export getForemostWindow
   napi_value get_foremost_window_fn;

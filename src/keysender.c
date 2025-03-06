@@ -8,15 +8,23 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-uint32_t SendCtrlKey(const char *key)
+uint32_t SendKey(const char *key, bool useModifier)
 {
 #ifdef _WIN32
   
   BYTE keyCode = 0;
-  if (strcmp(key, "C") == 0) {
+  if (strcmp(key, "A") == 0) {
+    keyCode = 0x41; // VK_A
+  } else if (strcmp(key, "C") == 0) {
     keyCode = 0x43; // VK_C
   } else if (strcmp(key, "V") == 0) {
     keyCode = 0x56; // VK_V
+  } else if (strcmp(key, "Delete") == 0) {
+    keyCode = VK_DELETE; // VK_DELETE
+  } else if (strcmp(key, "Enter") == 0) {
+    keyCode = VK_RETURN; // VK_RETURN
+  } else if (strcmp(key, "Down") == 0) {
+    keyCode = VK_DOWN; // VK_DOWN
   } else {
     printf("Unrecognized key: %s\n", key);
     return 0; // Error: Unsupported key
@@ -47,78 +55,105 @@ uint32_t SendCtrlKey(const char *key)
     return 0;  // Keys still pressed after timeout
   }
 
-  printf("Sending key: %s\n", key);
+  printf("Sending key: %s%s\n", useModifier ? "Ctrl+" : "", key);
 
   // make sure window is active
   HWND hwnd = GetForegroundWindow();
   SendMessage(hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
 
-  // inputs
-  INPUT inputs[4] = {0};
+  // Determine number of inputs needed
+  int numInputs = useModifier ? 4 : 2;
+  INPUT* inputs = (INPUT*)malloc(numInputs * sizeof(INPUT));
+  if (inputs == NULL) {
+    printf("Failed to allocate memory for inputs\n");
+    return 0;
+  }
+  memset(inputs, 0, numInputs * sizeof(INPUT));
 
   // get virtual key mappings
   WORD scanCtrl = MapVirtualKey(VK_CONTROL, 0);
   WORD scanKey = MapVirtualKey(keyCode, 0);
-
-  // key down control
-  inputs[0].type = INPUT_KEYBOARD;
-  inputs[0].ki.wVk = VK_CONTROL;
-  inputs[0].ki.wScan = scanCtrl;
-  inputs[0].ki.dwFlags = 0;
-  inputs[0].ki.time = 0;
-  inputs[0].ki.dwExtraInfo = 0;
+  
+  int index = 0;
+  
+  if (useModifier) {
+    // key down control
+    inputs[index].type = INPUT_KEYBOARD;
+    inputs[index].ki.wVk = VK_CONTROL;
+    inputs[index].ki.wScan = scanCtrl;
+    inputs[index].ki.dwFlags = 0;
+    inputs[index].ki.time = 0;
+    inputs[index].ki.dwExtraInfo = 0;
+    index++;
+  }
 
   // key down key
-  inputs[1].type = INPUT_KEYBOARD;
-  inputs[1].ki.wVk = keyCode;
-  inputs[1].ki.wScan = scanKey;
-  inputs[1].ki.dwFlags = 0;
-  inputs[1].ki.time = 0;
-  inputs[1].ki.dwExtraInfo = 0;
+  inputs[index].type = INPUT_KEYBOARD;
+  inputs[index].ki.wVk = keyCode;
+  inputs[index].ki.wScan = scanKey;
+  inputs[index].ki.dwFlags = 0;
+  inputs[index].ki.time = 0;
+  inputs[index].ki.dwExtraInfo = 0;
+  index++;
 
-  // key up control
-  inputs[2].type = INPUT_KEYBOARD;
-  inputs[2].ki.wVk = VK_CONTROL;
-  inputs[2].ki.wScan = scanCtrl;
-  inputs[2].ki.dwFlags = KEYEVENTF_KEYUP;
-  inputs[2].ki.time = 0;
-  inputs[2].ki.dwExtraInfo = 0;
+  if (useModifier) {
+    // key up control
+    inputs[index].type = INPUT_KEYBOARD;
+    inputs[index].ki.wVk = VK_CONTROL;
+    inputs[index].ki.wScan = scanCtrl;
+    inputs[index].ki.dwFlags = KEYEVENTF_KEYUP;
+    inputs[index].ki.time = 0;
+    inputs[index].ki.dwExtraInfo = 0;
+    index++;
+  }
 
   // key up key
-  inputs[3].type = INPUT_KEYBOARD;
-  inputs[3].ki.wVk = keyCode;
-  inputs[3].ki.wScan = scanKey;
-  inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
-  inputs[3].ki.time = 0;
-  inputs[3].ki.dwExtraInfo = 0;
+  inputs[index].type = INPUT_KEYBOARD;
+  inputs[index].ki.wVk = keyCode;
+  inputs[index].ki.wScan = scanKey;
+  inputs[index].ki.dwFlags = KEYEVENTF_KEYUP;
+  inputs[index].ki.time = 0;
+  inputs[index].ki.dwExtraInfo = 0;
 
-  UINT numSent = SendInput(4, inputs, sizeof(INPUT));
+  UINT numSent = SendInput(numInputs, inputs, sizeof(INPUT));
   printf("Sent keys: %d\n", numSent);
-  return numSent == 4 ? 1 : 0;
+  
+  free(inputs);
+  return numSent == numInputs ? 1 : 0;
 
 #elif defined(__APPLE__)
   CGKeyCode keyCode;
 
-  // Define key codes for C and V on macOS
-  if (strcmp(key, "C") == 0) {
+  // Define key codes for macOS
+  if (strcmp(key, "A") == 0) {
+    keyCode = 0; // A key on macOS
+  } else if (strcmp(key, "C") == 0) {
     keyCode = 8; // C key on macOS
   } else if (strcmp(key, "V") == 0) {
     keyCode = 9; // V key on macOS
+  } else if (strcmp(key, "Delete") == 0) {
+    keyCode = 51; // Delete key on macOS
+  } else if (strcmp(key, "Enter") == 0) {
+    keyCode = 36; // Return key on macOS
+  } else if (strcmp(key, "Down") == 0) {
+    keyCode = 125; // Down arrow key on macOS
   } else {
     printf("Unrecognized key: %s\n", key);
     return 0; // Error: Unsupported key
   }
-
+  
   // Get the current event source
   CGEventSourceRef sourceRef = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
 
-  // Create events for Command + key
+  // Create events for key (with or without Command)
   CGEventRef keyDown = CGEventCreateKeyboardEvent(sourceRef, keyCode, true);
   CGEventRef keyUp = CGEventCreateKeyboardEvent(sourceRef, keyCode, false);
 
-  // Add Command modifier
-  CGEventSetFlags(keyDown, kCGEventFlagMaskCommand);
-  CGEventSetFlags(keyUp, kCGEventFlagMaskCommand);
+  // Add Command modifier if requested
+  if (useModifier) {
+    CGEventSetFlags(keyDown, kCGEventFlagMaskCommand);
+    CGEventSetFlags(keyUp, kCGEventFlagMaskCommand);
+  }
 
   // Post the events
   CGEventPost(kCGHIDEventTap, keyDown);

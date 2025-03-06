@@ -1,16 +1,18 @@
-#ifndef KEY_SENDER_H
-#define KEY_SENDER_H
+#ifndef KEYSENDER_H
+#define KEYSENDER_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-uint32_t SendCtrlKey(const char* key);
+// Send a key with optional modifier (Ctrl on Windows, Command on macOS)
+uint32_t SendKey(const char *key, bool useModifier);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // KEY_SENDER_H
+#endif // KEYSENDER_H
