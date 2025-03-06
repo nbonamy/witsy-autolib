@@ -97,17 +97,17 @@ uint32_t SendCtrlKey()
   return numSent == 4 ? 1 : 0;
 
 #elif defined(__APPLE__)
-  CGKeyCode keyCode;
+  CGKeyCode keyCode = 8;
 
-  // Define key codes for C and V on macOS
-  if (strcmp(key, "C") == 0) {
-    keyCode = 8; // C key on macOS
-  } else if (strcmp(key, "V") == 0) {
-    keyCode = 9; // V key on macOS
-  } else {
-    printf("Unrecognized key: %s\n", key);
-    return 0; // Error: Unsupported key
-  }
+  // // Define key codes for C and V on macOS
+  // if (strcmp(key, "C") == 0) {
+  //   keyCode = 8; // C key on macOS
+  // } else if (strcmp(key, "V") == 0) {
+  //   keyCode = 9; // V key on macOS
+  // } else {
+  //   printf("Unrecognized key: %s\n", key);
+  //   return 0; // Error: Unsupported key
+  // }
 
   // Get the current event source
   CGEventSourceRef sourceRef = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
