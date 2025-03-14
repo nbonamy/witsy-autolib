@@ -32,6 +32,12 @@ void FreeIconData(IconData* iconData);
 }
 #endif
 
+#elif defined(__APPLE__)
+
+#include <ApplicationServices/ApplicationServices.h>
+
+pid_t GetForemostApplicationPID(void);
+
 #endif
 
 #endif // PROCESS_H

@@ -288,4 +288,25 @@ void FreeIconData(IconData* iconData) {
   free(iconData);
 }
 
+#elif defined(__APPLE__)
+
+pid_t GetForemostApplicationPID(void)
+{
+  ProcessSerialNumber psn = {0, kCurrentProcess};
+  if (GetFrontProcess(&psn) != noErr) {
+    printf("Error: Unable to get front process\n");
+    return 0;
+  }
+
+  pid_t pid = 0;
+  if (GetProcessPID(&psn, &pid) != noErr) {
+    printf("Error: Unable to get process PID\n");
+    return 0;
+  }
+
+  // done
+  return pid;
+
+}
+
 #endif

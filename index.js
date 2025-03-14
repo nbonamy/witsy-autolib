@@ -6,7 +6,7 @@ try {
 } catch (err) {
   console.error('autolib failed to load native module:', err)
   module.exports = {
-    sendKey: function() {
+    GetForemostApplicationPID: function() {
       throw new Error('autolib native module not loaded')
     },
     getForemostWindow: function() {
@@ -16,6 +16,12 @@ try {
       throw new Error('autolib native module not loaded')
     },
     getApplicationIcon: function() {
+      throw new Error('autolib native module not loaded')
+    },
+    sendKey: function() {
+      throw new Error('autolib native module not loaded')
+    },
+    getSelectedText: function() {
       throw new Error('autolib native module not loaded')
     }
   }

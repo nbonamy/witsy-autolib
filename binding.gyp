@@ -8,7 +8,8 @@
         "src/addon.c",
         "src/keysender.c",
         "src/process.c",
-        "src/window.c"
+        "src/window.c",
+        "src/selection.c"
       ],
       "include_dirs": [],
       "conditions": [
@@ -24,12 +25,11 @@
           ]
         }],
         ["OS=='mac'", {
-          "link_settings": {
-            "libraries": [
-              "$(SDKROOT)/System/Library/Frameworks/ApplicationServices.framework",
-              "-lm"
-            ]
-          }
+          "libraries": [
+            "-framework ApplicationServices",
+            "-framework Foundation",
+            "-framework AppKit"
+          ]
         }],
         ["OS=='linux'", {
           "libraries": [

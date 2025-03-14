@@ -4,6 +4,7 @@
 #include "keysender.h"
 #include "process.h"
 #include "window.h"
+#include "selection.h"
 
 #define MAX_PATH_LENGTH 260
 
@@ -229,6 +230,58 @@ static napi_value GetApplicationIconWrapper(napi_env env, napi_callback_info inf
 #endif
 }
 
+static napi_value GetSelectedTextWrapper(napi_env env, napi_callback_info info)
+{
+
+  // Buffer to hold the selected text - adjust size as needed
+  char buffer[4096] = {0};
+  
+  // Call the GetSelectedText function
+  uint32_t result = GetSelectedText(buffer, sizeof(buffer));
+  
+  // If successful, return the selected text as a string
+  if (result) {
+    napi_value text_value;
+    napi_create_string_utf8(env, buffer, strlen(buffer), &text_value);
+    return text_value;
+  } else {
+    // If failed, return null
+    napi_value null_value;
+    napi_get_null(env, &null_value);
+    return null_value;
+  }
+}
+
+// Add this function after your other wrapper functions
+static napi_value GetForemostProcessIdWrapper(napi_env env, napi_callback_info info)
+{
+#ifndef __APPLE__
+  napi_throw_error(env, NULL, "This function is only available on macOS");
+  return NULL;
+#else
+  napi_status status;
+  
+  // Call the GetForemostApplicationPID function
+  pid_t pid = GetForemostApplicationPID();
+  
+  if (pid > 0) {
+    // If successful, return the PID as a number
+    napi_value pid_value;
+    status = napi_create_int32(env, (int32_t)pid, &pid_value);
+    if (status != napi_ok) {
+      napi_throw_error(env, NULL, "Failed to create return value");
+      return NULL;
+    }
+    return pid_value;
+  } else {
+    // If failed, return null
+    napi_value null_value;
+    status = napi_get_null(env, &null_value);
+    return null_value;
+  }
+#endif
+}
+
 static napi_value Init(napi_env env, napi_value exports)
 {
   napi_value result;
@@ -244,6 +297,11 @@ static napi_value Init(napi_env env, napi_value exports)
   napi_create_function(env, NULL, 0, GetForemostWindowWrapper, NULL, &get_foremost_window_fn);
   napi_set_named_property(env, result, "getForemostWindow", get_foremost_window_fn);
   
+  // Export getForemostProcessId
+  napi_value get_foremost_process_id_fn;
+  napi_create_function(env, NULL, 0, GetForemostProcessIdWrapper, NULL, &get_foremost_process_id_fn);
+  napi_set_named_property(env, result, "getForemostProcessId", get_foremost_process_id_fn);
+  
   // Export getProductName
   napi_value get_product_name_fn;
   napi_create_function(env, NULL, 0, GetProductNameWrapper, NULL, &get_product_name_fn);
@@ -253,6 +311,11 @@ static napi_value Init(napi_env env, napi_value exports)
   napi_value get_application_icon_fn;
   napi_create_function(env, NULL, 0, GetApplicationIconWrapper, NULL, &get_application_icon_fn);
   napi_set_named_property(env, result, "getApplicationIcon", get_application_icon_fn);
+  
+  // Export getSelectedText
+  napi_value get_selected_text_fn;
+  napi_create_function(env, NULL, 0, GetSelectedTextWrapper, NULL, &get_selected_text_fn);
+  napi_set_named_property(env, result, "getSelectedText", get_selected_text_fn);
 
   return result;
 }
