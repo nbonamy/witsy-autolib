@@ -10,13 +10,13 @@ uint32_t MouseClick(int x, int y)
     POINT originalPos;
     GetCursorPos(&originalPos);
 
-    printf("Original Mouse Position: %d, %d\n", originalPos.x, originalPos.y);
+    //printf("Original Mouse Position: %d, %d\n", originalPos.x, originalPos.y);
 
     // Convert screen coordinates to mouse event coordinates
     double fScreenWidth = GetSystemMetrics(SM_CXSCREEN) - 1;
     double fScreenHeight = GetSystemMetrics(SM_CYSCREEN) - 1;
 
-    printf("Screen Width: %f, Screen Height: %f\n", fScreenWidth, fScreenHeight);
+    //printf("Screen Width: %f, Screen Height: %f\n", fScreenWidth, fScreenHeight);
     
     // Prepare input structure for mouse movement and click
     INPUT input;
@@ -33,7 +33,7 @@ uint32_t MouseClick(int x, int y)
     result = SendInput(1, &input, sizeof(INPUT));
     if (result != 1) return 0;
 
-    printf("Mouse moved to: %d, %d\n", input.mi.dx, input.mi.dy);
+    //printf("Mouse moved to: %d, %d\n", input.mi.dx, input.mi.dy);
     
     // Small delay to ensure mouse has moved
     Sleep(10);
@@ -45,6 +45,7 @@ uint32_t MouseClick(int x, int y)
     result = SendInput(1, &input, sizeof(INPUT));
     if (result != 1) return 0;
 
+    // Small delay between button down and up
     Sleep(10);
 
     // Left button up
@@ -52,8 +53,8 @@ uint32_t MouseClick(int x, int y)
     result = SendInput(1, &input, sizeof(INPUT));
     if (result != 1) return 0;
     
-    // // Small delay between click and moving back
-    // Sleep(10);
+    // Small delay between click and moving back
+    Sleep(10);
 
     // // Move back to original position
     input.mi.dx = (LONG)((originalPos.x * 65535.0f) / fScreenWidth);
@@ -62,7 +63,7 @@ uint32_t MouseClick(int x, int y)
     result = SendInput(1, &input, sizeof(INPUT));
     if (result != 1) return 0;
 
-    printf("Mouse moved back to: %d, %d\n", input.mi.dx, input.mi.dy);
+    //printf("Mouse moved back to: %d, %d\n", input.mi.dx, input.mi.dy);
 
     // Success
     return 1;
