@@ -5,6 +5,7 @@
 #include "process.h"
 #include "window.h"
 #include "selection.h"
+#include "mouse.h"
 
 #define MAX_PATH_LENGTH 260
 
@@ -362,6 +363,50 @@ static napi_value ActivateWindowWrapper(napi_env env, napi_callback_info info)
 #endif
 }
 
+static napi_value MouseClickWrapper(napi_env env, napi_callback_info info)
+{
+#ifndef WIN32
+  napi_throw_error(env, NULL, "This function is only available on Windows");
+  return NULL;
+#else
+  napi_status status;
+  size_t argc = 2;
+  napi_value args[2];
+  
+  // Get the arguments (x and y coordinates)
+  status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
+  if (status != napi_ok || argc < 2) {
+    napi_throw_error(env, NULL, "Expected two number arguments (x and y coordinates)");
+    return NULL;
+  }
+  
+  // Get the x coordinate
+  int32_t x;
+  status = napi_get_value_int32(env, args[0], &x);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Expected a number for x coordinate");
+    return NULL;
+  }
+  
+  // Get the y coordinate
+  int32_t y;
+  status = napi_get_value_int32(env, args[1], &y);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Expected a number for y coordinate");
+    return NULL;
+  }
+  
+  // Call the MouseClick function
+  uint32_t result = MouseClick(x, y);
+  
+  // Return success/failure
+  napi_value return_val;
+  status = napi_create_uint32(env, result, &return_val);
+  
+  return return_val;
+#endif
+}
+
 static napi_value Init(napi_env env, napi_value exports)
 {
   napi_value result;
@@ -406,6 +451,11 @@ static napi_value Init(napi_env env, napi_value exports)
   napi_value activate_window_fn;
   napi_create_function(env, NULL, 0, ActivateWindowWrapper, NULL, &activate_window_fn);
   napi_set_named_property(env, result, "activateWindow", activate_window_fn);
+  
+  // Export MouseClick
+  napi_value simulate_mouse_click_fn;
+  napi_create_function(env, NULL, 0, MouseClickWrapper, NULL, &simulate_mouse_click_fn);
+  napi_set_named_property(env, result, "MouseClick", simulate_mouse_click_fn);
 
   return result;
 }

@@ -8,8 +8,9 @@
         "src/addon.c",
         "src/keysender.c",
         "src/process.c",
-        "src/window.c",
-        "src/selection.c"
+        "src/mouse.c",
+        "src/selection.c",
+        "src/window.c"
       ],
       "include_dirs": [],
       "conditions": [

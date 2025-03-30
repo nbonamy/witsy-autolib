@@ -27,6 +27,9 @@ try {
     sendKey: function() {
       throw new Error('autolib native module not loaded')
     },
+    mouseClick: function() {
+      throw new Error('autolib native module not loaded')
+    },
     getSelectedText: function() {
       throw new Error('autolib native module not loaded')
     }
