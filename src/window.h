@@ -7,6 +7,10 @@
 extern "C" {
 #endif
 
+#ifdef WIN32
+
+#include <windows.h>
+
 // Structure to hold window information
 typedef struct {
   char* exePath;      // Path to the executable
@@ -21,6 +25,12 @@ ForemostWindowInfo* GetForemostWindow();
 
 // Free the memory allocated for WindowInfo
 void FreeWindowInfo(ForemostWindowInfo* info);
+
+// Activate a window by sending WM_ACTIVATE message
+// Returns TRUE if successful, FALSE otherwise
+BOOL ActivateWindow(HWND hwnd);
+
+#endif
 
 #ifdef __cplusplus
 }

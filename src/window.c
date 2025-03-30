@@ -105,4 +105,14 @@ void FreeWindowInfo(ForemostWindowInfo* info) {
   free(info);
 }
 
+BOOL ActivateWindow(HWND hwnd) {
+  if (!hwnd) {
+    printf("Invalid window handle\n");
+    return FALSE;
+  }
+  
+  // Send WM_ACTIVATE message with WA_ACTIVE parameter
+  return (BOOL)SendMessage(hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
+}
+
 #endif
