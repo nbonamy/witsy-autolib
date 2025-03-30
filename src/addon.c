@@ -455,7 +455,7 @@ static napi_value Init(napi_env env, napi_value exports)
   // Export MouseClick
   napi_value simulate_mouse_click_fn;
   napi_create_function(env, NULL, 0, MouseClickWrapper, NULL, &simulate_mouse_click_fn);
-  napi_set_named_property(env, result, "MouseClick", simulate_mouse_click_fn);
+  napi_set_named_property(env, result, "mouseClick", simulate_mouse_click_fn);
 
   return result;
 }
