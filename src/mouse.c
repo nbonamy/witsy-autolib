@@ -30,17 +30,17 @@ uint32_t MouseClick(int x, int y)
     input[2].type = INPUT_MOUSE;
     input[2].mi.dwFlags = MOUSEEVENTF_LEFTUP;
 
-    // Move back to original position
-    input[3].type = INPUT_MOUSE;
-    input[3].mi.dx = (LONG)((originalPos.x * 65535.0f) / fScreenWidth);
-    input[3].mi.dy = (LONG)((originalPos.y * 65535.0f) / fScreenHeight);
-    input[3].mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+    // // Move back to original position
+    // input[3].type = INPUT_MOUSE;
+    // input[3].mi.dx = (LONG)((originalPos.x * 65535.0f) / fScreenWidth);
+    // input[3].mi.dy = (LONG)((originalPos.y * 65535.0f) / fScreenHeight);
+    // input[3].mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
     
     // Send the input events
-    UINT result = SendInput(4, input, sizeof(INPUT));
+    UINT result = SendInput(3, input, sizeof(INPUT));
     
     // Return success if all inputs were sent
-    return (result == 4) ? 1 : 0;
+    return (result == 3) ? 1 : 0;
 }
 
 #else
