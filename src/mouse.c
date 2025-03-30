@@ -14,33 +14,36 @@ uint32_t MouseClick(int x, int y)
     double fScreenHeight = GetSystemMetrics(SM_CYSCREEN) - 1;
     
     // Prepare input structure for mouse movement and click
-    INPUT input[5] = {0};
+    INPUT input;
+    UINT result;
     
     // Move mouse to the specified position
-    input[0].type = INPUT_MOUSE;
-    input[0].mi.dx = (LONG)((x * 65535.0f) / fScreenWidth);
-    input[0].mi.dy = (LONG)((y * 65535.0f) / fScreenHeight);
-    input[0].mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+    input.type = INPUT_MOUSE;
+    input.mi.dx = (LONG)((x * 65535.0f) / fScreenWidth);
+    input.mi.dy = (LONG)((y * 65535.0f) / fScreenHeight);
+    input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) return 0;
     
     // Left button down
-    input[1].type = INPUT_MOUSE;
-    input[1].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-    
+    input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_ABSOLUTE;
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) return 0;
+
     // Left button up
-    input[2].type = INPUT_MOUSE;
-    input[2].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+    input.mi.dwFlags = MOUSEEVENTF_LEFTUP | MOUSEEVENTF_ABSOLUTE;
+    result = SendInput(1, &input, sizeof(INPUT));
+    if (result != 1) return 0;
 
     // // Move back to original position
-    // input[3].type = INPUT_MOUSE;
-    // input[3].mi.dx = (LONG)((originalPos.x * 65535.0f) / fScreenWidth);
-    // input[3].mi.dy = (LONG)((originalPos.y * 65535.0f) / fScreenHeight);
-    // input[3].mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
-    
-    // Send the input events
-    UINT result = SendInput(3, input, sizeof(INPUT));
-    
-    // Return success if all inputs were sent
-    return (result == 3) ? 1 : 0;
+    // input.mi.dx = (LONG)((originalPos.x * 65535.0f) / fScreenWidth);
+    // input.mi.dy = (LONG)((originalPos.y * 65535.0f) / fScreenHeight);
+    // input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+    // result = SendInput(1, &input, sizeof(INPUT));
+    // if (result != 1) return 0;
+
+    // Success
+    return 1;
 }
 
 #else
