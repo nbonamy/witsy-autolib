@@ -12,6 +12,9 @@ try {
     getForemostWindow: function() {
       throw new Error('autolib native module not loaded')
     },
+    activateWindow: function() {
+      throw new Error('autolib native module not loaded')
+    },
     setForegroundWindow: function() {
       throw new Error('autolib native module not loaded')
     },
