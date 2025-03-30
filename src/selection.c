@@ -102,16 +102,16 @@ uint32_t GetSelectedText(char *buffer, size_t buffer_size)
       kAXSelectedTextAttribute,
       (CFTypeRef *)&selectedText);
 
-  if (result != kAXErrorSuccess || selectedText == NULL || CFStringGetLength(selectedText) == 0)
-  {
-    printf("Warning: Getting value\n");
+  // if (result != kAXErrorSuccess || selectedText == NULL || CFStringGetLength(selectedText) == 0)
+  // {
+  //   printf("Warning: Getting value\n");
 
-    // If kAXSelectedTextAttribute failed, try kAXValueAttribute as fallback
-    result = AXUIElementCopyAttributeValue(
-        focusedElement,
-        kAXValueAttribute,
-        (CFTypeRef *)&selectedText);
-  }
+  //   // If kAXSelectedTextAttribute failed, try kAXValueAttribute as fallback
+  //   result = AXUIElementCopyAttributeValue(
+  //       focusedElement,
+  //       kAXValueAttribute,
+  //       (CFTypeRef *)&selectedText);
+  // }
 
   if (result != kAXErrorSuccess || selectedText == NULL || CFStringGetLength(selectedText) == 0)
   {
