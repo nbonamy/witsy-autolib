@@ -33,7 +33,7 @@ uint32_t MouseClick(int x, int y)
     result = SendInput(1, &input, sizeof(INPUT));
     if (result != 1) return 0;
 
-    printf("Mouse moved to: %d, %d\n", input.mi.dx, input.mi.dx);
+    printf("Mouse moved to: %d, %d\n", input.mi.dx, input.mi.dy);
     
     // Small delay to ensure mouse has moved
     Sleep(10);
@@ -56,11 +56,13 @@ uint32_t MouseClick(int x, int y)
     // Sleep(10);
 
     // // Move back to original position
-    // input.mi.dx = (LONG)((originalPos.x * 65535.0f) / fScreenWidth);
-    // input.mi.dy = (LONG)((originalPos.y * 65535.0f) / fScreenHeight);
-    // input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+    input.mi.dx = (LONG)((originalPos.x * 65535.0f) / fScreenWidth);
+    input.mi.dy = (LONG)((originalPos.y * 65535.0f) / fScreenHeight);
+    input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
     // result = SendInput(1, &input, sizeof(INPUT));
     // if (result != 1) return 0;
+
+    printf("Mouse moved back to: %d, %d\n", input.mi.dx, input.mi.dy);
 
     // Success
     return 1;
