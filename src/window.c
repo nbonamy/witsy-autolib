@@ -111,8 +111,14 @@ BOOL ActivateWindow(HWND hwnd) {
     return FALSE;
   }
   
-  // Send WM_ACTIVATE message with WA_ACTIVE parameter
-  return (BOOL)SendMessage(hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
+  // Send messages
+  SendMessage(hwnd, WM_ACTIVATEAPP, TRUE, 0);  
+  SendMessage(hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
+  SendMessage(hwnd, WM_SETFOCUS, 0, 0);
+  SetForegroundWindow(hwnd);
+
+  // Done
+  return TRUE;
 }
 
 #endif
