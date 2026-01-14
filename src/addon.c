@@ -6,6 +6,7 @@
 #include "window.h"
 #include "selection.h"
 #include "mouse.h"
+#include "keymonitor.h"
 
 #define MAX_PATH_LENGTH 260
 
@@ -407,6 +408,58 @@ static napi_value MouseClickWrapper(napi_env env, napi_callback_info info)
 #endif
 }
 
+static napi_value StartKeyMonitorWrapper(napi_env env, napi_callback_info info)
+{
+  napi_status status;
+  size_t argc = 1;
+  napi_value args[1];
+
+  // Get the callback argument
+  status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
+  if (status != napi_ok || argc < 1) {
+    napi_throw_error(env, NULL, "Expected a callback function argument");
+    return NULL;
+  }
+
+  // Verify it's a function
+  napi_valuetype type;
+  status = napi_typeof(env, args[0], &type);
+  if (status != napi_ok || type != napi_function) {
+    napi_throw_error(env, NULL, "Expected a callback function argument");
+    return NULL;
+  }
+
+  // Start the key monitor
+  int result = StartKeyMonitor(env, args[0]);
+
+  // Return the result
+  napi_value return_val;
+  napi_create_int32(env, result, &return_val);
+  return return_val;
+}
+
+static napi_value StopKeyMonitorWrapper(napi_env env, napi_callback_info info)
+{
+  (void)info;
+
+  int result = StopKeyMonitor();
+
+  napi_value return_val;
+  napi_create_int32(env, result, &return_val);
+  return return_val;
+}
+
+static napi_value IsKeyMonitorRunningWrapper(napi_env env, napi_callback_info info)
+{
+  (void)info;
+
+  bool running = IsKeyMonitorRunning();
+
+  napi_value return_val;
+  napi_get_boolean(env, running, &return_val);
+  return return_val;
+}
+
 static napi_value Init(napi_env env, napi_value exports)
 {
   napi_value result;
@@ -456,6 +509,21 @@ static napi_value Init(napi_env env, napi_value exports)
   napi_value simulate_mouse_click_fn;
   napi_create_function(env, NULL, 0, MouseClickWrapper, NULL, &simulate_mouse_click_fn);
   napi_set_named_property(env, result, "mouseClick", simulate_mouse_click_fn);
+
+  // Export startKeyMonitor
+  napi_value start_key_monitor_fn;
+  napi_create_function(env, NULL, 0, StartKeyMonitorWrapper, NULL, &start_key_monitor_fn);
+  napi_set_named_property(env, result, "startKeyMonitor", start_key_monitor_fn);
+
+  // Export stopKeyMonitor
+  napi_value stop_key_monitor_fn;
+  napi_create_function(env, NULL, 0, StopKeyMonitorWrapper, NULL, &stop_key_monitor_fn);
+  napi_set_named_property(env, result, "stopKeyMonitor", stop_key_monitor_fn);
+
+  // Export isKeyMonitorRunning
+  napi_value is_key_monitor_running_fn;
+  napi_create_function(env, NULL, 0, IsKeyMonitorRunningWrapper, NULL, &is_key_monitor_running_fn);
+  napi_set_named_property(env, result, "isKeyMonitorRunning", is_key_monitor_running_fn);
 
   return result;
 }

@@ -32,6 +32,15 @@ try {
     },
     getSelectedText: function() {
       throw new Error('autolib native module not loaded')
+    },
+    startKeyMonitor: function() {
+      throw new Error('autolib native module not loaded')
+    },
+    stopKeyMonitor: function() {
+      throw new Error('autolib native module not loaded')
+    },
+    isKeyMonitorRunning: function() {
+      throw new Error('autolib native module not loaded')
     }
   }
 }

@@ -7,6 +7,7 @@
       "sources": [
         "src/addon.c",
         "src/keysender.c",
+        "src/keymonitor.c",
         "src/process.c",
         "src/mouse.c",
         "src/selection.c",
