@@ -1,6 +1,6 @@
 {
   "name": "autolib",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Witsy native automation library",
   "module": "true",
   "main": "index.js",
