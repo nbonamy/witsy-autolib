@@ -35,7 +35,8 @@
         }],
         ["OS=='linux'", {
           "libraries": [
-            "-lm"
+            "-lm",
+            "-levdev"
           ]
         }]
       ]
