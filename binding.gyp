@@ -34,6 +34,9 @@
           ]
         }],
         ["OS=='linux'", {
+          "include_dirs": [
+            "/usr/include/libevdev-1.0"
+          ],
           "libraries": [
             "-lm",
             "-levdev"
