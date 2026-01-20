@@ -282,6 +282,7 @@ bool IsKeyMonitorRunning(void) {
 static HHOOK g_hook = NULL;
 static HANDLE g_thread = NULL;
 static DWORD g_threadId = 0;
+static bool g_keyState[256] = {false};
 
 // Callback that runs on the main JS thread
 static void CALLBACK CallJS(napi_env env, napi_value js_callback, void* context, void* data) {
@@ -342,6 +343,18 @@ static void CALLBACK CallJS(napi_env env, napi_value js_callback, void* context,
 static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
   if (nCode >= 0 && g_tsfn != NULL) {
     KBDLLHOOKSTRUCT* kbStruct = (KBDLLHOOKSTRUCT*)lParam;
+    BYTE vkCode = (BYTE)kbStruct->vkCode;
+
+    // Filter out key repeats - only send initial keydown and keyup
+    if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
+      if (g_keyState[vkCode]) {
+        // Key already down, this is a repeat - skip it
+        return CallNextHookEx(g_hook, nCode, wParam, lParam);
+      }
+      g_keyState[vkCode] = true;
+    } else if (wParam == WM_KEYUP || wParam == WM_SYSKEYUP) {
+      g_keyState[vkCode] = false;
+    }
 
     KeyEvent* keyEvent = (KeyEvent*)malloc(sizeof(KeyEvent));
     if (keyEvent != NULL) {
@@ -361,7 +374,7 @@ static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lP
 
       keyEvent->keyCode = (uint16_t)kbStruct->vkCode;
       keyEvent->flags = kbStruct->flags;
-      keyEvent->isRepeat = false; // Windows doesn't easily provide this
+      keyEvent->isRepeat = false;
 
       napi_call_threadsafe_function(g_tsfn, keyEvent, napi_tsfn_nonblocking);
     }
@@ -444,6 +457,9 @@ int StopKeyMonitor(void) {
   }
 
   g_running = false;
+
+  // Reset key state
+  memset(g_keyState, 0, sizeof(g_keyState));
 
   // Post quit message to the thread
   if (g_threadId != 0) {
@@ -714,23 +730,28 @@ static void* KeyboardThread(void* arg) {
 }
 
 int StartKeyMonitor(napi_env env, napi_value callback) {
+  fprintf(stderr, "[keymonitor] StartKeyMonitor called, g_running=%d\n", g_running); fflush(stderr);
   if (g_running) {
+    fprintf(stderr, "[keymonitor] Already running, returning 1\n"); fflush(stderr);
     return 1; // Already running
   }
 
   // Find keyboard device
   char device_path[512];
+  fprintf(stderr, "[keymonitor] Looking for keyboard device...\n"); fflush(stderr);
   if (FindKeyboardDevice(device_path, sizeof(device_path)) != 0) {
-    printf("Failed to find keyboard device. Make sure you have permission to access /dev/input devices.\n");
+    fprintf(stderr, "[keymonitor] Failed to find keyboard device. Make sure you have permission to access /dev/input devices.\n"); fflush(stderr);
     return 3;
   }
+  fprintf(stderr, "[keymonitor] Found keyboard device: %s\n", device_path); fflush(stderr);
 
   // Open the device (non-blocking for select-based reading)
   g_fd = open(device_path, O_RDONLY | O_NONBLOCK);
   if (g_fd < 0) {
-    printf("Failed to open keyboard device: %s\n", device_path);
+    fprintf(stderr, "[keymonitor] Failed to open keyboard device: %s (errno=%d)\n", device_path, errno); fflush(stderr);
     return 3;
   }
+  fprintf(stderr, "[keymonitor] Opened device fd=%d\n", g_fd); fflush(stderr);
 
   // Create libevdev instance
   if (libevdev_new_from_fd(g_fd, &g_evdev) != 0) {
@@ -783,11 +804,14 @@ int StartKeyMonitor(napi_env env, napi_value callback) {
   }
 
   g_running = true;
+  printf("[keymonitor] Started successfully\n");
   return 0;
 }
 
 int StopKeyMonitor(void) {
+  printf("[keymonitor] StopKeyMonitor called, g_running=%d\n", g_running);
   if (!g_running) {
+    printf("[keymonitor] Not running, returning 1\n");
     return 1; // Not running
   }
 
