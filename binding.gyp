@@ -27,6 +27,9 @@
           ]
         }],
         ["OS=='mac'", {
+          "sources": [
+            "src/modifiermonitor.m"
+          ],
           "libraries": [
             "-framework ApplicationServices",
             "-framework Foundation",

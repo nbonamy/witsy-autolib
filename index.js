@@ -41,6 +41,15 @@ try {
     },
     isKeyMonitorRunning: function() {
       throw new Error('autolib native module not loaded')
+    },
+    startModifierMonitor: function() {
+      throw new Error('autolib native module not loaded')
+    },
+    stopModifierMonitor: function() {
+      throw new Error('autolib native module not loaded')
+    },
+    isModifierMonitorRunning: function() {
+      throw new Error('autolib native module not loaded')
     }
   }
 }

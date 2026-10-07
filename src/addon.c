@@ -7,6 +7,7 @@
 #include "selection.h"
 #include "mouse.h"
 #include "keymonitor.h"
+#include "modifiermonitor.h"
 
 #define MAX_PATH_LENGTH 260
 
@@ -460,6 +461,48 @@ static napi_value IsKeyMonitorRunningWrapper(napi_env env, napi_callback_info in
   return return_val;
 }
 
+#ifndef __APPLE__
+// Modifier monitoring through NSEvent is macOS only
+int StartModifierMonitor(napi_env env, napi_value callback) { (void)env; (void)callback; return 1; }
+int StopModifierMonitor(void) { return 1; }
+bool IsModifierMonitorRunning(void) { return false; }
+#endif
+
+static napi_value StartModifierMonitorWrapper(napi_env env, napi_callback_info info)
+{
+  size_t argc = 1;
+  napi_value args[1];
+
+  napi_status status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
+  napi_valuetype type;
+  if (status != napi_ok || argc < 1 || napi_typeof(env, args[0], &type) != napi_ok || type != napi_function) {
+    napi_throw_error(env, NULL, "Expected a callback function argument");
+    return NULL;
+  }
+
+  napi_value return_val;
+  napi_create_int32(env, StartModifierMonitor(env, args[0]), &return_val);
+  return return_val;
+}
+
+static napi_value StopModifierMonitorWrapper(napi_env env, napi_callback_info info)
+{
+  (void)info;
+
+  napi_value return_val;
+  napi_create_int32(env, StopModifierMonitor(), &return_val);
+  return return_val;
+}
+
+static napi_value IsModifierMonitorRunningWrapper(napi_env env, napi_callback_info info)
+{
+  (void)info;
+
+  napi_value return_val;
+  napi_get_boolean(env, IsModifierMonitorRunning(), &return_val);
+  return return_val;
+}
+
 static napi_value Init(napi_env env, napi_value exports)
 {
   napi_value result;
@@ -524,6 +567,21 @@ static napi_value Init(napi_env env, napi_value exports)
   napi_value is_key_monitor_running_fn;
   napi_create_function(env, NULL, 0, IsKeyMonitorRunningWrapper, NULL, &is_key_monitor_running_fn);
   napi_set_named_property(env, result, "isKeyMonitorRunning", is_key_monitor_running_fn);
+
+  // Export startModifierMonitor
+  napi_value start_modifier_monitor_fn;
+  napi_create_function(env, NULL, 0, StartModifierMonitorWrapper, NULL, &start_modifier_monitor_fn);
+  napi_set_named_property(env, result, "startModifierMonitor", start_modifier_monitor_fn);
+
+  // Export stopModifierMonitor
+  napi_value stop_modifier_monitor_fn;
+  napi_create_function(env, NULL, 0, StopModifierMonitorWrapper, NULL, &stop_modifier_monitor_fn);
+  napi_set_named_property(env, result, "stopModifierMonitor", stop_modifier_monitor_fn);
+
+  // Export isModifierMonitorRunning
+  napi_value is_modifier_monitor_running_fn;
+  napi_create_function(env, NULL, 0, IsModifierMonitorRunningWrapper, NULL, &is_modifier_monitor_running_fn);
+  napi_set_named_property(env, result, "isModifierMonitorRunning", is_modifier_monitor_running_fn);
 
   return result;
 }
